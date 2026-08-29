@@ -1,19 +1,19 @@
 // ============================================================================
 // FRAME ADAPTER - Adaptive resolution/format handling for vision pipeline
 // ============================================================================
-// Status: Core bilinear resampling + letterboxing works.
-// Known issue: 2x downscaling fast path (nearest-neighbor) disabled due to
-// test_cv_e2e yellow marker detection failure. Bilinear interpolation slightly
-// blurs small markers. Re-enable fast path after fixing downsampling.
+// Provides aspect-correct conversion + downsampling into the working grid.
 // 
-// Remaining items:
-//   - Re-enable 2x nearest-neighbor fast path for 320x240 -> 160x120
-//   - Add configurable downsampling mode (bilinear vs nearest-neighbor)
-//   - Verify RGB565 little-endian packing matches target hardware (XIAO ESP32S3)
-//   - Add frame_adapter unit tests for edge cases
+// Downsampling mode is configurable via Config::FRAME_ADAPTER_USE_NEAREST_NEIGHBOR
+// in thresholds.h:
+//   true  = nearest-neighbor 2x decimation (preserves sharp marker edges)
+//   false = bilinear interpolation (smoother but blurs small markers)
+//
+// Default is nearest-neighbor because bilinear interpolation was found to blur
+// small yellow marker edges enough to cause real HSV detection misses.
 // ============================================================================
 
 #include "frame_adapter.h"
+#include "../config/thresholds.h"
 #include <cstring>
 #include <cmath>
 
@@ -68,18 +68,10 @@ bool frame_adapter_convert(
     const float sx = static_cast<float>(src.width) / dst_w;
     const float sy = static_cast<float>(src.height) / dst_h;
 
-    // Fast path: exact 2x downscaling (legacy nearest-neighbor behavior).
-    // TODO: Re-enable after debugging test failure.
-    // Currently disabled because the bilinear path produces slightly different
-    // colors for small markers (e.g., yellow circle at (80,60)) compared to
-    // the legacy nearest-neighbor 2x decimation. The bilinear interpolation
-    // slightly blurs small marker edges, causing HSV threshold misses for
-    // the yellow buried marker. Re-enable after:
-    //   1. Verify RGB565 little-endian packing matches target hardware
-    //   2. Check if bilinear interpolation can be replaced with a more
-    //      accurate downsampling that preserves sharp edges
-    //   3. Consider adding a configurable downsampling mode (bilinear vs NN)
-    const bool exact_half_downscale = true;
+    // Fast path: exact 2x downscaling using nearest-neighbor decimation.
+    // Controlled by Config::FRAME_ADAPTER_USE_NEAREST_NEIGHBOR in thresholds.h.
+    // Nearest-neighbor preserves sharp marker edges that bilinear would blur.
+    const bool exact_half_downscale = Config::FRAME_ADAPTER_USE_NEAREST_NEIGHBOR;
     if (exact_half_downscale && std::abs(sx - 2.0f) < 0.001f && std::abs(sy - 2.0f) < 0.001f) {
         for (uint16_t ty = 0; ty < dst_h; ++ty) {
             uint8_t* row = dst_rgb888 + static_cast<size_t>(ty) * dst_w * 3;

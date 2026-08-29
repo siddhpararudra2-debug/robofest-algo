@@ -123,10 +123,13 @@ constexpr float MAX_HORIZONTAL_SPEED_MPS = 1.5f;
 // tunable implementation default
  constexpr uint16_t VISION_RATE_HZ = 15;
 
-// tunable implementation default
- constexpr bool RGB565_LE_BYTE_ORDER = true; // true = LSB first (this code's assumption), false = MSB first
- // TODO: Verify empirically with camera module - test with pure red, green, blue targets
- // and confirm computed hue values match expectations before trusting HSV thresholds.
+// UNVERIFIED against real hardware (XIAO ESP32-S3 + OV5640 DVP).
+// Assumed little-endian (LSB first). Must be verified empirically:
+//   1. Capture a pure-red, pure-green, pure-blue target frame
+//   2. Confirm computed HSV hue values match expectations
+// If wrong, swap to false and re-validate all HSV threshold bands.
+ constexpr bool RGB565_LE_BYTE_ORDER = true;
+ constexpr bool RGB565_BYTE_ORDER_VERIFIED = false;
 
 // tunable implementation default
 
@@ -260,17 +263,23 @@ constexpr bool CAMERA_AUTO_WHITEBALANCE_ENABLED = false;
 // ============================================================================
 // MINE MARKER HSV THRESHOLD PLACEHOLDERS
 // ============================================================================
+// UNVERIFIED: These HSV color bands are initial estimates for the OV5640
+// camera module. They MUST be verified empirically before trusting detection
+// accuracy on real footage. Run sim/calibrate_camera.py with real marker
+// samples and update values + set HSV_THRESHOLDS_VERIFIED = true.
 
-// tunable implementation default
+constexpr bool HSV_THRESHOLDS_VERIFIED = false;
+
+// tunable implementation default — UNVERIFIED
 constexpr HsvColor ON_GROUND_MINE_HSV_LOW = {0, 100, 100};
 
-// tunable implementation default
+// tunable implementation default — UNVERIFIED
 constexpr HsvColor ON_GROUND_MINE_HSV_HIGH = {15, 255, 255};
 
-// tunable implementation default
+// tunable implementation default — UNVERIFIED
 constexpr HsvColor BURIED_SURFACE_MARKER_HSV_LOW = {25, 120, 120};
 
-// tunable implementation default
+// tunable implementation default — UNVERIFIED
 constexpr HsvColor BURIED_SURFACE_MARKER_HSV_HIGH = {40, 255, 255};
 
 
@@ -387,6 +396,12 @@ constexpr uint8_t VISION_NIGHT_MEAN_V_MAX = 60;
 // resize into the working grid before segmentation. When disabled or on
 // allocation failure the legacy strided-sampling path is used unchanged.
 constexpr bool VISION_FRAME_ADAPTER_ENABLED = true;
+
+// Downsampling mode for exact 2x reduction (320x240 → 160x120).
+// true  = nearest-neighbor (preserves sharp marker edges, avoids HSV blur)
+// false = bilinear interpolation (smoother but blurs small yellow markers)
+// Default: true (nearest-neighbor) to avoid detection misses on small markers.
+constexpr bool FRAME_ADAPTER_USE_NEAREST_NEIGHBOR = true;
 
 
 // ============================================================================

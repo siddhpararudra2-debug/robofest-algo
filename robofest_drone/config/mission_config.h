@@ -134,12 +134,23 @@ constexpr uint32_t PEER_LOST_TIMEOUT_MS = 2000UL;
 // ============================================================================
 // DRONE IDENTITY CONSTANTS
 // ============================================================================
+// Override per-drone via PlatformIO build flags:
+//   -D DRONE_ID_OVERRIDE=2 -D DRONE_ROLE_OVERRIDE=1
+// See platformio.ini for pre-configured env:drone_1, env:drone_2, env:drone_3.
 
-// tunable implementation default
+#ifdef DRONE_ID_OVERRIDE
+constexpr uint8_t DRONE_ID = DRONE_ID_OVERRIDE;
+#else
+// Default — must be overridden for multi-drone flashing
 constexpr uint8_t DRONE_ID = 1;
+#endif
 
-// tunable implementation default
+#ifdef DRONE_ROLE_OVERRIDE
+constexpr uint8_t DRONE_ROLE = DRONE_ROLE_OVERRIDE;
+#else
+// Default — 0 = SCOUT_LEFT
 constexpr uint8_t DRONE_ROLE = 0;
+#endif
 
 // tunable implementation default
 constexpr uint8_t SWARM_PACKET_VERSION = 1;

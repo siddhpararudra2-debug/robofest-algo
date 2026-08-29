@@ -24,7 +24,7 @@ The mission is to detect surface-laid mines and buried mine markers across a 15-
 | Companion Computer | Seeed Studio XIAO ESP32-S3 Sense | Dual-Core 240MHz, 8MB PSRAM, 8MB Flash | Vision, mapping, path planning, swarm mesh |
 | Flight Controller | Matek H743-SLIM V3 | STM32H743 @ 480MHz, Dual IMU (MPU6000 + ICM-42605) | Attitude stabilization, motor mixing |
 | ESC | Foxeer Reaper F4 65A 4-in-1 | 65A continuous, 100A burst, DShot600 | Brushless motor power control |
-| BLDC Motors | T motor P1604 2850kv | Micro brushless motors | Propulsion on 4S power |
+| BLDC Motors | Darwin 1504 2300KV | Micro brushless motors | Propulsion on 4S power |
 | Propellers | Gemfan Hurricane 4024 | 4.0 inch diameter, 2.4 inch pitch | Low vibration aerodynamic thrust |
 | Camera | OmniVision OV5640 5MP | DVP parallel interface to ESP32-S3 | Downward mine and marker detection |
 | Ground Distance | Holybro ST VL53L1X LiDAR | 0.04m to 4.0m range, 50Hz I2C | Altitude measurement and ground clearance |
@@ -99,7 +99,20 @@ Run the unit tests on a host computer (Windows, Linux, or macOS) using standard 
 
 ```bash
 cd robofest_drone
-g++ -std=c++17 -Wall -Wextra -I./src -I./hal -I./config tests/*.cpp src/vision_pipeline.cpp src/geofence.cpp src/path_planner.cpp src/mine_map.cpp src/command_layer.cpp src/telemetry.cpp src/calibration/hsv_tuner.cpp hal/*.cpp -o robofest_unit_tests.exe
+g++ -std=c++17 -Wall -Wextra -I./src -I./hal -I./config \
+    tests/*.cpp \
+    src/vision_pipeline.cpp src/geofence.cpp src/path_planner.cpp \
+    src/mine_map.cpp src/command_layer.cpp src/telemetry.cpp \
+    src/shape_analysis.cpp src/frame_adapter.cpp src/image_enhance.cpp \
+    src/mem.cpp src/profiler.cpp src/undistort.cpp src/profile_store.cpp \
+    src/gesture_engine.cpp src/human_detector.cpp src/buried_detector.cpp \
+    src/threat_arbiter.cpp src/marker_controller.cpp src/code_reader.cpp \
+    src/human_tracker.cpp src/swarm_comm.cpp src/state_machine.cpp \
+    src/mission_integration.cpp src/safety_manager.cpp src/fc_bridge.cpp \
+    src/search_behavior.cpp src/localization.cpp src/scheduler.cpp \
+    src/calibration/hsv_tuner.cpp \
+    hal/*.cpp \
+    -o robofest_unit_tests.exe
 ./robofest_unit_tests.exe
 ```
 

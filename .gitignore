@@ -27,3 +27,9 @@ run_*.md
 .idea/
 .DS_Store
 Thumbs.db
+
+# Non-firmware clutter — prevent re-committing
+roster.json
+roster-backups/
+hive/
+herr.txt

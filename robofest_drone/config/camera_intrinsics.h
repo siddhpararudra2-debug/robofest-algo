@@ -1,14 +1,20 @@
 #pragma once
 
 // ============================================================================
-// DEFAULT (UNCALIBRATED) CAMERA INTRINSICS - PLACEHOLDER
-// ----------------------------------------------------------------------------
-// This placeholder keeps the build green before a real calibration session.
-// It encodes the same pinhole assumption as the legacy H_FOV/V_FOV constants
-// but is marked INVALID so undistort() degrades to an identity pass-through
-// and the rest of the pipeline functions unchanged.
+// *** UNCALIBRATED PLACEHOLDER — DO NOT USE FOR PRODUCTION FLIGHTS ***
+// ============================================================================
+// These intrinsics are PLACEHOLDER values. CAM_INTRINSICS_VALID = false
+// causes undistort() to degrade to an identity pass-through. Position
+// projection will use the pinhole approximation from H_FOV/V_FOV instead.
 //
-// REPLACE by running:  python sim/calibrate_camera.py --camera 0 --rows 6 --cols 9
+// To calibrate with the real camera:
+//   python sim/calibrate_camera.py --camera 0 --rows 6 --cols 9
+//
+// The script will output calibrated values to paste here. After updating,
+// set CAM_INTRINSICS_VALID = true.
+//
+// Also verify: thresholds.h → HSV_THRESHOLDS_VERIFIED
+//              thresholds.h → RGB565_BYTE_ORDER_VERIFIED
 // (REQ-DER-120, item 20)
 // ============================================================================
 

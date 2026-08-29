@@ -122,7 +122,20 @@ robofest_drone/
 ### 5.1 Run Offline Unit Tests (Desktop GCC / MinGW)
 ```bash
 cd robofest_drone
-g++ -std=c++17 -Wall -Wextra -I./src -I./hal -I./config tests/*.cpp src/vision_pipeline.cpp src/geofence.cpp src/path_planner.cpp src/mine_map.cpp src/command_layer.cpp src/telemetry.cpp src/calibration/hsv_tuner.cpp hal/*.cpp -o robofest_unit_tests.exe
+g++ -std=c++17 -Wall -Wextra -I./src -I./hal -I./config \
+    tests/*.cpp \
+    src/vision_pipeline.cpp src/geofence.cpp src/path_planner.cpp \
+    src/mine_map.cpp src/command_layer.cpp src/telemetry.cpp \
+    src/shape_analysis.cpp src/frame_adapter.cpp src/image_enhance.cpp \
+    src/mem.cpp src/profiler.cpp src/undistort.cpp src/profile_store.cpp \
+    src/gesture_engine.cpp src/human_detector.cpp src/buried_detector.cpp \
+    src/threat_arbiter.cpp src/marker_controller.cpp src/code_reader.cpp \
+    src/human_tracker.cpp src/swarm_comm.cpp src/state_machine.cpp \
+    src/mission_integration.cpp src/safety_manager.cpp src/fc_bridge.cpp \
+    src/search_behavior.cpp src/localization.cpp src/scheduler.cpp \
+    src/calibration/hsv_tuner.cpp \
+    hal/*.cpp \
+    -o robofest_unit_tests.exe
 ./robofest_unit_tests.exe
 ```
 

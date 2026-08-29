@@ -210,9 +210,37 @@ void MissionIntegration::runCalibration(uint32_t now_ms) {
 
     // Allow 200 ms for sensor settle
     if (now_ms - calibration_start_ms_ >= 200UL) {
-        ctx_->calibration_complete = true;
-        calibration_in_progress_ = false;
-        setTelemetryEvent(TE_CALIBRATION_COMPLETE);
+        // Validate that critical sensors are actually reporting healthy data
+        // before declaring calibration complete.
+        bool sensors_ok = true;
+
+        // FC link must be alive
+        if (ctx_->fc_bridge != nullptr && !ctx_->fc_bridge->isLinkHealthy()) {
+            sensors_ok = false;
+        }
+
+        // Localization must have received valid flow or ToF within the
+        // settle window (not still zeroed / timed-out)
+        if (ctx_->localization != nullptr && !ctx_->localization->isLocalizationHealthy()) {
+            sensors_ok = false;
+        }
+
+        // Camera must have delivered at least one valid frame
+        if (ctx_->vision_pipeline != nullptr && !ctx_->vision_pipeline->isHealthy()) {
+            sensors_ok = false;
+        }
+
+        if (sensors_ok) {
+            ctx_->calibration_complete = true;
+            calibration_in_progress_ = false;
+            setTelemetryEvent(TE_CALIBRATION_COMPLETE);
+        } else {
+            // Sensors not healthy — calibration failed.
+            ctx_->calibration_complete = false;
+            calibration_in_progress_ = false;
+            ctx_->self_check_passed = false;
+            setTelemetryEvent(TE_CALIBRATION_FAILED);
+        }
     }
 }
 
